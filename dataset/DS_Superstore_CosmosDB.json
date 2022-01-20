@@ -1,0 +1,15 @@
+{
+	"name": "DS_Superstore_CosmosDB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_CosmosDB_JRC",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbSqlApiCollection",
+		"schema": {},
+		"typeProperties": {
+			"collectionName": "Superstore-JRC0615"
+		}
+	}
+}

@@ -1,0 +1,69 @@
+{
+	"name": "DF_Superstore",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Orders",
+						"type": "DatasetReference"
+					},
+					"name": "Orders"
+				},
+				{
+					"dataset": {
+						"referenceName": "OrdersWeekly",
+						"type": "DatasetReference"
+					},
+					"name": "OrderWeekly"
+				},
+				{
+					"dataset": {
+						"referenceName": "Region_Cost",
+						"type": "DatasetReference"
+					},
+					"name": "RegionCost"
+				},
+				{
+					"dataset": {
+						"referenceName": "Returns",
+						"type": "DatasetReference"
+					},
+					"name": "Returns"
+				},
+				{
+					"dataset": {
+						"referenceName": "Users",
+						"type": "DatasetReference"
+					},
+					"name": "Users"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Superstore_CosmosDB",
+						"type": "DatasetReference"
+					},
+					"name": "SinkToCosmosDB"
+				}
+			],
+			"transformations": [
+				{
+					"name": "OrdersUnion"
+				},
+				{
+					"name": "JoinRegionCost"
+				},
+				{
+					"name": "JoinReturns"
+				},
+				{
+					"name": "JoinUsers"
+				}
+			],
+			"script": "source(output(\n\t\t{Row ID} as string,\n\t\t{Order Priority} as string,\n\t\tDiscount as string,\n\t\t{Unit Price} as string,\n\t\t{Shipping Cost} as string,\n\t\t{Customer ID} as string,\n\t\t{Customer Name} as string,\n\t\t{Ship Mode} as string,\n\t\t{Customer Segment} as string,\n\t\t{Product Category} as string,\n\t\t{Product Sub-Category} as string,\n\t\t{Product Container} as string,\n\t\t{Product Name} as string,\n\t\t{Product Base Margin} as string,\n\t\tCountry as string,\n\t\tRegion as string,\n\t\t{State or Province} as string,\n\t\tCity as string,\n\t\t{Postal Code} as string,\n\t\t{Order Date} as string,\n\t\t{Ship Date} as string,\n\t\tProfit as string,\n\t\t{Quantity ordered new} as string,\n\t\tSales as string,\n\t\t{Order ID} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> Orders\nsource(output(\n\t\t{Row ID} as string,\n\t\t{Order Priority} as string,\n\t\tDiscount as string,\n\t\t{Unit Price} as string,\n\t\t{Shipping Cost} as string,\n\t\t{Customer ID} as string,\n\t\t{Customer Name} as string,\n\t\t{Ship Mode} as string,\n\t\t{Customer Segment} as string,\n\t\t{Product Category} as string,\n\t\t{Product Sub-Category} as string,\n\t\t{Product Container} as string,\n\t\t{Product Name} as string,\n\t\t{Product Base Margin} as string,\n\t\tCountry as string,\n\t\tRegion as string,\n\t\t{State or Province} as string,\n\t\tCity as string,\n\t\t{Postal Code} as string,\n\t\t{Order Date} as string,\n\t\t{Ship Date} as string,\n\t\tProfit as string,\n\t\t{Quantity ordered new} as string,\n\t\tSales as string,\n\t\t{Order ID} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> OrderWeekly\nsource(output(\n\t\tRegion as string,\n\t\tCost as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> RegionCost\nsource(output(\n\t\t{Order ID} as string,\n\t\tStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> Returns\nsource(output(\n\t\tRegion as string,\n\t\tManager as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> Users\nOrders, OrderWeekly union(byName: true,\n\tpartitionBy('hash', 1))~> OrdersUnion\nOrdersUnion, RegionCost join(OrdersUnion@Region == RegionCost@Region,\n\tjoinType:'inner',\n\tpartitionBy('hash', 1),\n\tbroadcast: 'auto')~> JoinRegionCost\nJoinRegionCost, Returns join(OrdersUnion@{Order ID} == Returns@{Order ID},\n\tjoinType:'outer',\n\tpartitionBy('hash', 1),\n\tbroadcast: 'auto')~> JoinReturns\nJoinReturns, Users join(OrdersUnion@Region == Users@Region,\n\tjoinType:'inner',\n\tpartitionBy('hash', 1),\n\tbroadcast: 'auto')~> JoinUsers\nJoinUsers sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'document',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\t{Row ID},\n\t\t{Order Priority},\n\t\tDiscount,\n\t\t{Unit Price},\n\t\t{Shipping Cost},\n\t\t{Customer ID},\n\t\t{Customer Name},\n\t\t{Ship Mode},\n\t\t{Customer Segment},\n\t\t{Product Category},\n\t\t{Product Sub-Category},\n\t\t{Product Container},\n\t\t{Product Name},\n\t\t{Product Base Margin},\n\t\tCountry,\n\t\tRegion = OrdersUnion@Region,\n\t\t{State or Province},\n\t\tCity,\n\t\t{Postal Code},\n\t\t{Order Date},\n\t\t{Ship Date},\n\t\tProfit,\n\t\t{Quantity ordered new},\n\t\tSales,\n\t\t{Order ID} = OrdersUnion@{Order ID},\n\t\tRegion = RegionCost@Region,\n\t\tCost,\n\t\t{Order ID} = Returns@{Order ID},\n\t\tStatus,\n\t\tRegion = Users@Region,\n\t\tManager\n\t),\n\tpartitionBy('hash', 1)) ~> SinkToCosmosDB"
+		}
+	}
+}

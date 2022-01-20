@@ -1,0 +1,30 @@
+{
+	"name": "Region_Cost",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SuperstoreBlobjrc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Region_Cost",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Region_Cost.xlsx",
+				"container": "superstore-input-jrc"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "Region",
+				"type": "String"
+			},
+			{
+				"name": "Cost",
+				"type": "String"
+			}
+		]
+	}
+}

@@ -1,0 +1,30 @@
+{
+	"name": "Users",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SuperstoreBlobjrc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Users",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Users.xlsx",
+				"container": "superstore-input-jrc"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "Region",
+				"type": "String"
+			},
+			{
+				"name": "Manager",
+				"type": "String"
+			}
+		]
+	}
+}

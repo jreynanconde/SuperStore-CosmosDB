@@ -1,0 +1,30 @@
+{
+	"name": "Returns",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SuperstoreBlobjrc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Returns",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Returns.xlsx",
+				"container": "superstore-input-jrc"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "Order ID",
+				"type": "String"
+			},
+			{
+				"name": "Status",
+				"type": "String"
+			}
+		]
+	}
+}
